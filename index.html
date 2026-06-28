@@ -142,22 +142,23 @@
             retryButton.style.display = 'none';
             
             try {
-                const data = await fetchSheetDataFetch();
+                // Coba JSONP terlebih dahulu karena paling andal untuk Google Apps Script
+                const data = await fetchSheetDataJSONP();
                 if (data.status === 'success' && data.html) {
                     displayHTML(data.html);
                 } else {
                     showError(data.message || 'Data HTML tidak ditemukan di Spreadsheet.');
                 }
-            } catch (fetchError) {
+            } catch (jsonpError) {
                 try {
-                    const data = await fetchSheetDataJSONP();
+                    const data = await fetchSheetDataFetch();
                     if (data.status === 'success' && data.html) {
                         displayHTML(data.html);
                     } else {
                         showError(data.message || 'Data HTML tidak ditemukan.');
                     }
-                } catch (jsonpError) {
-                    showError('Gagal memuat aplikasi. Pastikan Google Apps Script sudah menambahkan fungsi doGet dan di-deploy ulang.');
+                } catch (fetchError) {
+                    showError('Gagal memuat aplikasi (' + jsonpError.message + '). Silakan coba tekan tombol Coba Lagi di bawah.');
                 }
             }
         }
